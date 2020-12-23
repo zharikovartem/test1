@@ -19,7 +19,6 @@ const Login = (props) => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.data.accessToken !== undefined) {
-                        console.log('response login API', data)
                         localStorage.setItem('accessToken', data.data.accessToken);
                         localStorage.setItem('refreshToken', data.data.refreshToken);
                         props.isLogined(true)
@@ -49,12 +48,10 @@ const Login = (props) => {
                     if (!values.password) {
                         errors.password = 'Required';
                     }
-                    console.log('errors: ',errors)
                     return errors;
                 }}
                 onSubmit={(values, { setSubmitting }) => {
                     values.clientId = 1;
-                    console.log('onSubmit values: ', values)
                     setState(values)
                     setSubmitting(false);
                 }}

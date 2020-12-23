@@ -23,7 +23,6 @@ const App = () => {
             fetch(baseURL, requestOptions)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                         setUserProfile(data.data)
                         setIsAuth(true)
                     }

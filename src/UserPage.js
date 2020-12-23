@@ -18,7 +18,6 @@ const UserPage = (props) => {
             fetch(baseURL, requestOptions)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data)
                     if (data.success) {
                         props.isLogined(false)
                         localStorage.clear()
@@ -46,7 +45,6 @@ const UserPage = (props) => {
                     <p>email: {props.userProfile.email}</p>
                 </>
             }
-
             <Button type="primary" onClick={logoutHandle} >Выйти</Button>
         </div>
     )
