@@ -1,9 +1,11 @@
+import 'react-app-polyfill/ie11';
 import React, { useState, useEffect } from 'react';
 import { Formik } from 'formik';
 import { Form, Input, Button, message } from 'antd';
 
 const Login = (props) => {
-    const [state, setState] = useState()
+    const [state, setState] = useState();
+    const [apiErrors, setApiErrors] =useState({ email: null, password: null});
 
     useEffect(() => {
         if (state) {
@@ -16,20 +18,34 @@ const Login = (props) => {
             };
 
             fetch(baseURL, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.data.accessToken !== undefined) {
-                        localStorage.setItem('accessToken', data.data.accessToken);
-                        localStorage.setItem('refreshToken', data.data.refreshToken);
-                        props.isLogined(true)
+                .then(res => {
+                    if (!res.ok) {
+                        res.json()
+                            .then(error => {
+
+                                setApiErrors({
+                                    email: error.errors.email ? error.errors.email.message : undefined,
+                                    password: error.errors.password ? error.errors.password.message : undefined
+                                })
+                                message.error(...error.message);
+                            });
                     }
-                })
-                .catch(function(error) {
-                    message.error('Введены не правельные данные');
+                    else {
+                        return res.json()
+                            .then(
+                                (data) => {
+                                    if (data.data !== undefined) {
+                                        localStorage.setItem('accessToken', data.data.accessToken);
+                                        localStorage.setItem('refreshToken', data.data.refreshToken);
+                                        props.isLogined(true)
+                                    }
+                                },
+                            );
+                    }
                 });
         }
 
-    }, [state, props])
+    }, [state, props]);
 
     return (
         <div className="Container">
@@ -48,6 +64,7 @@ const Login = (props) => {
                     if (!values.password) {
                         errors.password = 'Required';
                     }
+
                     return errors;
                 }}
                 onSubmit={(values, { setSubmitting }) => {
@@ -64,13 +81,12 @@ const Login = (props) => {
                     handleBlur,
                     handleSubmit,
                     isSubmitting,
-                    /* and other goodies */
                 }) => (
                     <form onSubmit={handleSubmit}>
-                        <Form.Item 
-                            label="Email" 
-                            validateStatus={errors.email !== undefined ? "error" : ""}
-                            help={errors.email && touched.email && errors.email}
+                        <Form.Item
+                            label="Email"
+                            validateStatus={errors.email || apiErrors.email  ? "error" : ""}
+                            help={errors.email === undefined ? apiErrors.email : errors.email}
                             required="true"
                         >
                             <Input
@@ -80,13 +96,13 @@ const Login = (props) => {
                                 onBlur={handleBlur}
                                 value={values.email}
                             />
-                            
+
                         </Form.Item>
 
                         <Form.Item
                             label="Password"
-                            validateStatus={errors.password !== undefined ? "error" : ""}
-                            help={errors.password && touched.password && errors.password}
+                            validateStatus={errors.password !== undefined || apiErrors.password ? "error" : ""}
+                            help={errors.password === undefined ? apiErrors.password : errors.password}
                             required="true"
                         >
                             <Input
@@ -106,7 +122,7 @@ const Login = (props) => {
                 )}
             </Formik>
         </div>
-    )
+    );
 }
 
 export default Login;
