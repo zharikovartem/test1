@@ -64,7 +64,7 @@ const Login = (props) => {
                     if (!values.password) {
                         errors.password = 'Required';
                     }
-
+                    setApiErrors({ email: null, password: null});
                     return errors;
                 }}
                 onSubmit={(values, { setSubmitting }) => {
