@@ -3,8 +3,20 @@ import React, { useState, useEffect } from 'react';
 import { Formik } from 'formik';
 import { Form, Input, Button, message } from 'antd';
 
-const Login = (props) => {
-    const [state, setState] = useState();
+type valuesType = {
+    clientId?: number | null,
+    email: string| null,
+    password: string| null
+}
+
+type errorType = {
+    email?: string,
+    password?: string
+};
+
+
+const Login = (props:any) => {
+    const [state, setState] = useState<valuesType>();
     const [apiErrors, setApiErrors] =useState({ email: null, password: null});
 
     useEffect(() => {
@@ -21,13 +33,14 @@ const Login = (props) => {
                 .then(res => {
                     if (!res.ok) {
                         res.json()
-                            .then(error => {
+                            .then( (error: any ) => {
 
                                 setApiErrors({
                                     email: error.errors.email ? error.errors.email.message : undefined,
                                     password: error.errors.password ? error.errors.password.message : undefined
                                 })
-                                message.error(...error.message);
+                                message.error(error.message);
+                                // message.error(...error.message);
                             });
                     }
                     else {
@@ -52,7 +65,9 @@ const Login = (props) => {
             <Formik
                 initialValues={{ email: 'user@ozitag.com', password: 'user' }}
                 validate={values => {
-                    const errors = {};
+                    
+                    let errors: errorType = {};
+
                     if (!values.email) {
                         errors.email = 'Required';
                     } else if (
@@ -67,7 +82,7 @@ const Login = (props) => {
                     setApiErrors({ email: null, password: null});
                     return errors;
                 }}
-                onSubmit={(values, { setSubmitting }) => {
+                onSubmit={(values:valuesType, { setSubmitting }) => {
                     values.clientId = 1;
                     setState(values)
                     setSubmitting(false);
@@ -87,7 +102,7 @@ const Login = (props) => {
                             label="Email"
                             validateStatus={errors.email || apiErrors.email  ? "error" : ""}
                             help={errors.email === undefined ? apiErrors.email : errors.email}
-                            required="true"
+                            required={true}
                         >
                             <Input
                                 type="email"
@@ -103,7 +118,7 @@ const Login = (props) => {
                             label="Password"
                             validateStatus={errors.password !== undefined || apiErrors.password ? "error" : ""}
                             help={errors.password === undefined ? apiErrors.password : errors.password}
-                            required="true"
+                            required={true}
                         >
                             <Input
                                 type="password"
